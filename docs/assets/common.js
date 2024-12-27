@@ -18,8 +18,8 @@ function generatePage(data) {
   const cards = document.getElementById("cards");
   data.forEach((record) => {
     let title = record.title
-    let imageUrl = record.image || record.thumbnailMedium.url
-    let videoUrl = record.video || `https://www.youtube.com/watch?v=${record.videoID}`
+    let imageUrl = record.image
+    let videoUrl = record.video
 
     const card = createCardComponent(title, imageUrl, videoUrl);
     cards.appendChild(card);
