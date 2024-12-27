@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokopea Best Vid</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            color: #252525;
+        }
+
+        body {
+            font-family: "Helvetica Neue",
+                Arial,
+                "Hiragino Kaku Gothic ProN",
+                "Hiragino Sans",
+                Meiryo,
+                sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        html {
+            background: linear-gradient(135deg, #1d7964, #74cce0);
+            background: #272727;
+        }
+
+        h1 {
+            color: #fff;
+            margin: 42px 0;
+            text-align: center;
+            font-size: 3rem;
+        }
+
+        p {
+            margin: 0 0 12px 0;
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 24px;
+            margin: 0 auto;
+        }
+
+        #contributors {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .contributor {
+            width: 23%;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 80px;
+        }
+
+        @media(max-width: 460px) {
+            .contributor {
+                width: 40%;
+            }
+        }
+
+        @media(min-width:461px) and (max-width: 720px) {
+            .contributor {
+                width: 30%;
+            }
+        }
+
+        @media(min-width: 721px) {
+            .contributor {
+                width: 23%;
+            }
+        }
+
+
+
+        .img {
+            min-width: 120px;
+            min-height: 120px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+        }
+
+        .image-wrapper {
+            padding-top: 100%;
+            position: relative;
+        }
+
+
+        .meta-wrapper {
+            color: #fff;
+            padding: 8px 37px;
+            border-radius: 4px;
+            display: flex;
+            margin: -12px 0 0 0;
+            z-index: 1;
+            max-width: 100%;
+            justify-content: space-evenly;
+        }
+
+        @media(max-width:460px) {
+            .meta-wrapper {
+                padding: 6px 16px;
+            }
+        }
+
+        @media(min-width: 461px) and (max-width:720px) {
+            .meta-wrapper {
+                padding: 6px 16px;
+                margin: -16px 0 0 0;
+            }
+        }
+
+        .meta-wrapper .name {
+            color: #fff;
+        }
+
+        .contributor:nth-of-type(2n) .meta-wrapper {
+            background: #c39e15;
+        }
+
+        .contributor:nth-of-type(2n+1) .meta-wrapper {
+            background: #79a755;
+        }
+
+        a.name {
+            margin-right: 8px;
+        }
+
+        span.cont-num {
+            background: #fff;
+            border-radius: 3px;
+            color: #6d6767;
+            padding: 2px 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Contributors 😎</h1>
+
+        <div class="contributors" id="contributors"></div>
+    </div>
+
+    <script src="./assets/common.js"></script>
+    <script>
+        showEasterEgg(2021)
+
+        const repoUrls = [
+            "https://api.github.com/repos/vsanna/ponpoko2020bestvids/contributors",
+            "https://api.github.com/repos/vsanna/ponpokobestvideo/contributors",
+            "https://api.github.com/repos/vsanna/bestvideo/contributors",
+        ]
+        Promise.all(repoUrls.map((repoUrl) => getJson(repoUrl)))
+            .then(data => {
+                const contributorsMap = {}
+
+                // merge
+                data.flat().forEach((contributor) => {
+                    contributorsMap[contributor.id] = {
+                        ...contributor,
+                        contributions: (contributorsMap[contributor.id]
+                                            ? contributorsMap[contributor.id].contributions
+                                            : 0)
+                                        + contributor.contributions
+                    }
+                })
+                const contributors = Object.values(contributorsMap)
+
+                // generate and append card elements into #cards
+                const contributorsSection = document.getElementById("contributors")
+                contributors.forEach((record) => {
+                    const comp = createContributoromponent(record)
+                    contributorsSection.appendChild(comp)
+                })
+
+                let numInRow = 0
+
+                if (window.innerWidth < 460) {
+                    numInRow = 2
+                } else if (window.innerWidth < 720) {
+                    numInRow = 3
+                } else {
+                    numInRow = 4
+                }
+
+                for (let i = 0; i < (numInRow - data.length % numInRow); i++) {
+                    contributorsSection.appendChild(createFilling())
+                }
+            })
+
+
+        /*
+        createCardComponent generate anchor element which is a card containing one video's title/url/thumbnail in it.
+        the element looks like below:
+            <a class="card" href="https://www.youtube.com/watch?v=JE7NILL0aCk" target="_blank">
+                <div class="img" background="https://i.ytimg.com/vi/JE7NILL0aCk/hqdefault.jp"></div>
+                <span class="title">【デブ活】500円でより多くのカロリーを摂取しろ！！コスパ飯選手権！</span>
+            </a>
+        @param {string} title
+        @param {string} thumbnailUrl
+        @param {string} videoUrl
+        @return {HTMLAnchorElement} card
+        */
+        function createContributoromponent(record) {
+            const contributorComp = document.createElement("div")
+            contributorComp.classList.add("contributor")
+
+            const imageWrapper = document.createElement("div")
+            imageWrapper.classList.add("image-wrapper")
+            contributorComp.appendChild(imageWrapper)
+
+            const metaWrapper = document.createElement("div")
+            metaWrapper.classList.add("meta-wrapper")
+            contributorComp.appendChild(metaWrapper)
+
+            const img = document.createElement("div")
+            img.classList.add("img")
+            img.style.background = `url(${record.avatar_url}) center/cover`
+            imageWrapper.appendChild(img)
+
+            const nameLink = document.createElement("a")
+            nameLink.classList.add("name")
+            nameLink.href = record.html_url
+            nameLink.target = "_blank"
+            nameLink.textContent = record.login
+            metaWrapper.appendChild(nameLink)
+
+            const contributionNum = document.createElement("span")
+            contributionNum.classList.add("cont-num")
+            contributionNum.textContent = record.contributions
+            metaWrapper.appendChild(contributionNum)
+
+            return contributorComp
+        }
+
+        function createFilling() {
+            const contributorComp = document.createElement("div")
+            contributorComp.classList.add("contributor")
+            contributorComp.classList.add("filling")
+            return contributorComp
+        }
+
+        function getJson(url) {
+            return fetch(url).then((res) => res.json())
+        }
+    </script>
+</body>
+
+</html>
