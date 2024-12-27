@@ -75,7 +75,7 @@ function showEasterEggForPokopea(year) {
   console.log("..........");
   console.log(
     "...AND! Now you reached here, it means you must be a good developer!\n" +
-      "I always welcome your contributions(any ideas/PRs are welcome!) to https://github.com/vsanna/ponpokobestvideo\n" +
+      "I always welcome your contributions(any ideas/PRs are welcome!) to https://github.com/vsanna/bestvideo\n" +
       "I promise to make contributors page and list your name in it~ Thanks!"
   );
 }
